@@ -4,4 +4,4 @@ ts_nightreport
 
 
 
-.. Add a brief (few sentence) description of what this package provides.
+ts_nightreport is a REST web service to create and manage observatory night reports.
