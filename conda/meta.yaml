@@ -1,0 +1,45 @@
+{% set data= load_setup_py_data() %}
+
+package:
+    name: ts-nightreport
+    version: {{ data.get('version') }}
+
+source:
+    path: ../
+
+build:
+    noarch: python
+    script: {{ PYTHON }} -m pip install --no-deps --ignore-installed .
+
+test:
+    requires:
+        - httpx
+        - postgresql
+        - psycopg
+        - pytest
+        - pytest-asyncio
+        - pytest-postgresql
+
+requirements:
+    host:
+        - python {{ python }}
+        - setuptools
+        - setuptools_scm
+        - pytest
+        - pytest-runner
+    build:
+        - python {{ python }}
+        - setuptools
+        - setuptools_scm
+        - ts-conda-build
+    run:
+        - python {{ python }}
+        - setuptools
+        - setuptools_scm
+        - alembic
+        - astropy
+        - asyncpg
+        - fastapi
+        - uvicorn
+        - sqlalchemy
+        - structlog
