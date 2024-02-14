@@ -26,3 +26,6 @@ pytest_session.txt
 .mypy.ini
 .ruff.toml
 towncrier.toml
+
+# Conda built
+ts_nightreport.egg-info
