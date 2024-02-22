@@ -1,3 +1,4 @@
+# flake8: noqa
 """initial version
 
 Revision ID: 99e08c61cf29
