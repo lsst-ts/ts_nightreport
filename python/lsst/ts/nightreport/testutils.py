@@ -20,8 +20,8 @@ import uuid
 
 import astropy.time
 import httpx
+import psycopg
 import sqlalchemy.engine
-import testing.postgresql
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import create_async_engine
 
@@ -49,18 +49,21 @@ random.seed(47)
 
 @contextlib.asynccontextmanager
 async def create_test_client(
+    postgresql: psycopg.Connection,
     num_reports: int = 0,
     num_edited: int = 0,
 ) -> collections.abc.AsyncGenerator[tuple[httpx.AsyncClient, list[ReportDictT]], None]:
     """Create the test database, test server, and httpx client."""
-    with testing.postgresql.Postgresql() as postgresql:
+    with postgresql as conn:
+        postgresql_url = f"postgresql://{conn.info.user}@{conn.info.host}:{conn.info.port}/{conn.info.dbname}"
         reports = await create_test_database(
-            postgres_url=postgresql.url(),
+            postgres_url=postgresql_url,
             num_reports=num_reports,
             num_edited=num_edited,
         )
 
-        db_config = db_config_from_dsn(postgresql.dsn())
+        dsn = dsn_from_connection_info(conn.info)
+        db_config = db_config_from_dsn(dsn)
         with modify_environ(
             SITE_ID=TEST_SITE_ID,
             **db_config,
@@ -192,6 +195,16 @@ def cast_special(value: typing.Any) -> typing.Any:
     elif isinstance(value, uuid.UUID):
         return str(value)
     return value
+
+
+def dsn_from_connection_info(conn_info: psycopg.ConnectionInfo) -> dict[str, str]:
+    """Get a database dsn from a psycopg.ConnectionInfo."""
+    return {
+        "user": conn_info.user,
+        "host": conn_info.host,
+        "port": conn_info.port,
+        "database": conn_info.dbname,
+    }
 
 
 def db_config_from_dsn(dsn: dict[str, str]) -> dict[str, str]:

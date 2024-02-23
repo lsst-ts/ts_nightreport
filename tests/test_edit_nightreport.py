@@ -1,9 +1,9 @@
 import http
 import random
-import unittest
 import uuid
 
 import httpx
+import pytest
 from lsst.ts.nightreport.testutils import (
     ArgDictT,
     ReportDictT,
@@ -48,57 +48,55 @@ def assert_good_edit_response(
     return new_report
 
 
-class EditReportTestCase(unittest.IsolatedAsyncioTestCase):
-    async def test_edit_report(self) -> None:
-        async with create_test_client(num_reports=1) as (
-            client,
-            reports,
-        ):
-            old_id = reports[0]["id"]
+@pytest.mark.asyncio
+async def test_edit_report(postgresql) -> None:
+    async with create_test_client(postgresql, num_reports=1) as (
+        client,
+        reports,
+    ):
+        old_id = reports[0]["id"]
+        get_old_response = await client.get(
+            f"/nightreport/reports/{old_id}",
+        )
+        assert_good_response(get_old_response)
+
+        full_edit_args = dict(
+            site_id="NewSite",
+            telescope="AuxTel",
+            day_obs=20240101,
+            summary="New report text",
+            telescope_status="OK",
+            confluence_url="https://new.example.com",
+            user_id="new user_id",
+            user_agent="new user_agent",
+        )
+        # Repeatedly edit the old report. Each time
+        # add a new version of the report with one field omitted,
+        # to check that the one field is not changed from the original.
+        # After each edit, find the old report and check that
+        # the date_invalidated has been suitably updated.
+        for del_key in full_edit_args:
+            print("######")
+            print(del_key)
+            print("######")
+            edit_args = full_edit_args.copy()
+            del edit_args[del_key]
+            edit_response = await client.patch(
+                f"/nightreport/reports/{old_id}", json=edit_args
+            )
+            assert_good_response(edit_response)
             get_old_response = await client.get(
                 f"/nightreport/reports/{old_id}",
             )
-            assert_good_response(get_old_response)
-
-            full_edit_args = dict(
-                site_id="NewSite",
-                telescope="AuxTel",
-                day_obs=20240101,
-                summary="New report text",
-                telescope_status="OK",
-                confluence_url="https://new.example.com",
-                user_id="new user_id",
-                user_agent="new user_agent",
+            old_report = assert_good_response(get_old_response)
+            assert_good_edit_response(
+                edit_response,
+                old_report=old_report,
+                edit_args=edit_args,
             )
-            # Repeatedly edit the old report. Each time
-            # add a new version of the report with one field omitted,
-            # to check that the one field is not changed from the original.
-            # After each edit, find the old report and check that
-            # the date_invalidated has been suitably updated.
-            for del_key in full_edit_args:
-                print("######")
-                print(del_key)
-                print("######")
-                edit_args = full_edit_args.copy()
-                del edit_args[del_key]
-                edit_response = await client.patch(
-                    f"/nightreport/reports/{old_id}", json=edit_args
-                )
-                assert_good_response(edit_response)
-                get_old_response = await client.get(
-                    f"/nightreport/reports/{old_id}",
-                )
-                old_report = assert_good_response(get_old_response)
-                assert_good_edit_response(
-                    edit_response,
-                    old_report=old_report,
-                    edit_args=edit_args,
-                )
 
-            # Error: edit a report that does not exist.
-            edit_args = full_edit_args.copy()
-            bad_id = uuid.uuid4()
-            response = await client.patch(
-                f"/nightreport/reports/{bad_id}", json=edit_args
-            )
-            assert response.status_code == http.HTTPStatus.NOT_FOUND
+        # Error: edit a report that does not exist.
+        edit_args = full_edit_args.copy()
+        bad_id = uuid.uuid4()
+        response = await client.patch(f"/nightreport/reports/{bad_id}", json=edit_args)
+        assert response.status_code == http.HTTPStatus.NOT_FOUND

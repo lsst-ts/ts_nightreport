@@ -1,6 +1,5 @@
-import unittest
-
 import httpx
+import pytest
 from lsst.ts.nightreport.testutils import (
     ReportDictT,
     assert_good_response,
@@ -33,24 +32,22 @@ def assert_good_add_response(response: httpx.Response, add_args: dict) -> Report
     return report
 
 
-class AddreportTestCase(unittest.IsolatedAsyncioTestCase):
-    async def test_add_report(self) -> None:
-        async with create_test_client(num_reports=0) as (
-            client,
-            reports,
-        ):
-            # Add a report with only the required fields specified.
-            add_args = dict(
-                telescope="AuxTel",
-                day_obs=20240101,
-                summary="A sample report",
-                telescope_status="OK",
-                confluence_url="https://example.com",
-                user_id="test_add_report",
-                user_agent="pytest",
-            )
-            for suffix in ("", "/"):
-                response = await client.post(
-                    "/nightreport/reports" + suffix, json=add_args
-                )
-                assert_good_add_response(response=response, add_args=add_args)
+@pytest.mark.asyncio
+async def test_add_report(postgresql) -> None:
+    async with create_test_client(postgresql, num_reports=0) as (
+        client,
+        reports,
+    ):
+        # Add a report with only the required fields specified.
+        add_args = dict(
+            telescope="AuxTel",
+            day_obs=20240101,
+            summary="A sample report",
+            telescope_status="OK",
+            confluence_url="https://example.com",
+            user_id="test_add_report",
+            user_agent="pytest",
+        )
+        for suffix in ("", "/"):
+            response = await client.post("/nightreport/reports" + suffix, json=add_args)
+            assert_good_add_response(response=response, add_args=add_args)

@@ -3,14 +3,18 @@ import contextlib
 import os
 import subprocess
 import typing
-import unittest
 import uuid
 
+import psycopg
+import pytest
 import sqlalchemy as sa
 import sqlalchemy.engine
 import sqlalchemy.types as saty
-import testing.postgresql
-from lsst.ts.nightreport.testutils import db_config_from_dsn, modify_environ
+from lsst.ts.nightreport.testutils import (
+    db_config_from_dsn,
+    dsn_from_connection_info,
+    modify_environ,
+)
 from sqlalchemy import inspect
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -25,7 +29,9 @@ URLS_LEN = 50
 
 
 @contextlib.asynccontextmanager
-async def create_database() -> collections.abc.AsyncGenerator[AsyncEngine, None]:
+async def create_database(
+    postgresql: psycopg.Connection,
+) -> collections.abc.AsyncGenerator[AsyncEngine, None]:
     """Create an empty database and set env vars to point to it.
 
     Returns
@@ -33,12 +39,13 @@ async def create_database() -> collections.abc.AsyncGenerator[AsyncEngine, None]
     url
         URL to database
     """
-    with testing.postgresql.Postgresql() as postgresql:
-        postgres_url = postgresql.url()
-        async_url = sqlalchemy.engine.make_url(postgres_url)
+    with postgresql as conn:
+        postgresql_url = f"postgresql://{conn.info.user}@{conn.info.host}:{conn.info.port}/{conn.info.dbname}"
+        async_url = sqlalchemy.engine.make_url(postgresql_url)
         async_url = async_url.set(drivername="postgresql+asyncpg")
 
-        db_config = db_config_from_dsn(postgresql.dsn())
+        dsn = dsn_from_connection_info(conn.info)
+        db_config = db_config_from_dsn(dsn)
         with modify_environ(**db_config):
             engine = create_async_engine(async_url)
             yield engine
@@ -164,54 +171,53 @@ def create_old_report_table() -> sa.Table:
     return table
 
 
-class AlembicMigrationTestCase(unittest.IsolatedAsyncioTestCase):
-    async def test_no_report_table(self) -> None:
-        async with create_database() as engine:
-            async with engine.connect() as connection:
-                table_names = await get_table_names(connection)
-                assert table_names == []
+@pytest.mark.asyncio
+async def test_no_report_table(postgresql) -> None:
+    async with create_database(postgresql) as engine:
+        async with engine.connect() as connection:
+            table_names = await get_table_names(connection)
+            assert table_names == []
 
-            subprocess.run(["alembic", "upgrade", "head"], env=os.environ.copy())
+        subprocess.run(["alembic", "upgrade", "head"], env=os.environ.copy())
 
-            async with engine.connect() as connection:
-                table_names = await get_table_names(connection)
-                print("#######")
-                print(table_names)
-                print("#######")
-                assert set(table_names) == {"alembic_version"}
+        async with engine.connect() as connection:
+            table_names = await get_table_names(connection)
+            assert set(table_names) == {"alembic_version"}
 
-    # async def test_old_message_table(self) -> None:
-    #     new_columns = {
-    #         "systems",
-    #         "subsystems",
-    #         "cscs",
-    #         "date_begin",
-    #         "date_end",
-    #     }
-    #     async with create_database() as engine:
-    #         old_message_table = create_old_report_table()
-    #         async with engine.begin() as connection:
-    #             await connection.run_sync(
-    #                 old_message_table.metadata.create_all
-    #             )
 
-    #             table_names = await get_table_names(connection)
-    #             assert table_names == ["message"]
+# class AlembicMigrationTestCase(unittest.IsolatedAsyncioTestCase):
+#     async def test_old_message_table(self) -> None:
+#         new_columns = {
+#             "systems",
+#             "subsystems",
+#             "cscs",
+#             "date_begin",
+#             "date_end",
+#         }
+#         async with create_database() as engine:
+#             old_message_table = create_old_report_table()
+#             async with engine.begin() as connection:
+#                 await connection.run_sync(
+#                     old_message_table.metadata.create_all
+#                 )
 
-    #             column_names = await get_column_names(
-    #                 connection, table="message"
-    #             )
-    #             assert new_columns & set(column_names) == set()
+#                 table_names = await get_table_names(connection)
+#                 assert table_names == ["message"]
 
-    #         subprocess.run(
-    #             ["alembic", "upgrade", "head"], env=os.environ.copy()
-    #         )
+#                 column_names = await get_column_names(
+#                     connection, table="message"
+#                 )
+#                 assert new_columns & set(column_names) == set()
 
-    #         async with engine.connect() as connection:
-    #             table_names = await get_table_names(connection)
-    #             assert set(table_names) == {"alembic_version", "message"}
+#             subprocess.run(
+#                 ["alembic", "upgrade", "head"], env=os.environ.copy()
+#             )
 
-    #             column_names = await get_column_names(
-    #                 connection, table="message"
-    #             )
-    #             assert new_columns < set(column_names)
+#             async with engine.connect() as connection:
+#                 table_names = await get_table_names(connection)
+#                 assert set(table_names) == {"alembic_version", "message"}
+
+#                 column_names = await get_column_names(
+#                     connection, table="message"
+#                 )
+#                 assert new_columns < set(column_names)
