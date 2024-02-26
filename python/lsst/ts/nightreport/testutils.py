@@ -1,10 +1,13 @@
 __all__ = [
     "TEST_SITE_ID",
+    "ArgDictT",
     "ReportDictT",
     "assert_good_response",
     "assert_reports_equal",
     "cast_special",
     "create_test_client",
+    "db_config_from_dsn",
+    "dsn_from_connection_info",
     "modify_environ",
 ]
 
@@ -34,11 +37,8 @@ MIN_DATE_RANDOM_REPORT = "2021-01-01"
 MAX_DATE_RANDOM_REPORT = "2022-12-31"
 MAX_TIME_DELTA_RANDOM_REPORT = datetime.timedelta(days=2)
 
-# Available telescopes
-
 # Other test data
 TEST_SITE_ID = "test"
-
 
 # Type annotation aliases
 ReportDictT = dict[str, typing.Any]

@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 class NightReportDatabase:
     """Connection to the night report database and tables creation.
 
-    Creates report table if it doesn't exist.
+    Create report table if it doesn't exist.
 
     Parameters
     ----------

@@ -1,5 +1,6 @@
 __all__ = [
     "SITE_ID_LEN",
+    "URLS_LEN",
     "create_nightreport_table",
 ]
 
