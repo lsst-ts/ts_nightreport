@@ -16,12 +16,28 @@ async def delete_nightreport(
     id: str,
     state: SharedState = fastapi.Depends(get_shared_state),
 ) -> fastapi.Response:
-    """Delete a report by marking it invalid.
+    """Delete a report stored in the database
+    by marking it invalid.
 
     A no-op if already the report is already marked invalid.
 
     If the report is valid: set ``is_valid`` false and ``date_invalidated``
     to the current date.
+
+    Notes
+    -----
+    This is a FastAPI endpoint.
+    For more information on FastAPI use of APIRouter,
+    see https://fastapi.tiangolo.com/tutorial/.
+
+    The id parameter is a FastAPI.Path parameter.
+    The state parameter is a FastAPI.Depends parameter
+    with the database shared state.
+
+    See also:
+    - https://fastapi.tiangolo.com/tutorial/path-params/
+    - https://fastapi.tiangolo.com/tutorial/dependencies/\
+        #declare-the-dependency-in-the-dependant
     """
     current_tai = astropy.time.Time.now().tai.datetime
 

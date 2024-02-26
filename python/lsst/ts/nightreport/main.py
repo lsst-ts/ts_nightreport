@@ -51,6 +51,13 @@ subapp.include_router(get_nightreport.router)
 
 @subapp.get("/", response_class=fastapi.responses.HTMLResponse)
 async def root(request: starlette.requests.Request) -> str:
+    """Return the root page for the night report service.
+
+    Parameters
+    ----------
+    request : starlette.requests.Request
+        The request object for the HTTP request.
+    """
     return f"""<html>
     <head>
         <title>

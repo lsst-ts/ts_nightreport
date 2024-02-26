@@ -39,6 +39,13 @@ class Telescope(str, enum.Enum):
 
 
 class NightReport(BaseModel):
+    """A night report model.
+
+    This is a Pydantic model for night reports.
+    Please visit https://docs.pydantic.dev/latest/ for more information
+    on Pydantic models.
+    """
+
     id: uuid.UUID = Field(title="Night report ID: a UUID that is the primary key.")
     site_id: str = Field(title="Site at which the report was created.")
 
@@ -78,6 +85,8 @@ class NightReport(BaseModel):
         from_attributes = True
 
 
+# Tuple of valid field names.
+# Retrieves the field names from the NightReport class.
 NIGHTREPORT_FIELDS = tuple(set(NightReport.schema()["properties"].keys()))
 
 

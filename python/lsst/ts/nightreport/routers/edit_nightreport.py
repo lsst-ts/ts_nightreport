@@ -37,7 +37,8 @@ async def edit_nightreport(
     ),
     state: SharedState = fastapi.Depends(get_shared_state),
 ) -> NightReport:
-    """Edit an existing report.
+    """Edit an existing report stored in the database
+    and return the edited report.
 
     The process is:
 
@@ -47,6 +48,24 @@ async def edit_nightreport(
       Set parent_id of the new report to the id of the parent report,
       in order to provide a link to the parent report.
     - Set timestamp_is_valid_changed=now on the parent report.
+
+    Notes
+    -----
+    This is a FastAPI endpoint.
+    For more information on FastAPI use of APIRouter,
+    see https://fastapi.tiangolo.com/tutorial/.
+
+    Most of the parameters are FastAPI.Body parameters.
+    id is a FastAPI.Path parameter.
+    The state parameter is a FastAPI.Depends parameter
+    with the database shared state.
+
+    See also:
+    - https://fastapi.tiangolo.com/tutorial/\
+        body-multiple-params/#singular-values-in-body
+    - https://fastapi.tiangolo.com/tutorial/path-params/
+    - https://fastapi.tiangolo.com/tutorial/dependencies/\
+        #declare-the-dependency-in-the-dependant
     """
     nightreport_table = state.nightreport_db.nightreport_table
 

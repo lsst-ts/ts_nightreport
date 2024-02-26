@@ -15,7 +15,23 @@ async def get_nightreport(
     id: str,
     state: SharedState = fastapi.Depends(get_shared_state),
 ) -> NightReport:
-    """Get one night report."""
+    """Find a specific night report by its id and return it.
+
+    Notes
+    -----
+    This is a FastAPI endpoint.
+    For more information on FastAPI use of APIRouter,
+    see https://fastapi.tiangolo.com/tutorial/.
+
+    The id parameter is a FastAPI.Path parameter.
+    The state parameter is a FastAPI.Depends parameter
+    with the database shared state.
+
+    See also:
+    - https://fastapi.tiangolo.com/tutorial/path-params/
+    - https://fastapi.tiangolo.com/tutorial/dependencies/\
+        #declare-the-dependency-in-the-dependant
+    """
     nightreport_table = state.nightreport_db.nightreport_table
 
     async with state.nightreport_db.engine.connect() as connection:

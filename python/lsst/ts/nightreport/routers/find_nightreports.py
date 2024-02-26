@@ -107,7 +107,24 @@ async def find_nightreports(
     ),
     state: SharedState = fastapi.Depends(get_shared_state),
 ) -> list[NightReport]:
-    """Find night reports."""
+    """Find night reports stored in the database and return a list of them.
+
+    Notes
+    -----
+    This is a FastAPI endpoint.
+    For more information on FastAPI use of APIRouter,
+    see https://fastapi.tiangolo.com/tutorial/.
+
+    Most of the parameters are FastAPI.Query parameters.
+    The state parameter is a FastAPI.Depends parameter
+    with the database shared state.
+
+    See also:
+    - https://fastapi.tiangolo.com/tutorial/\
+        query-params-str-validations/
+    - https://fastapi.tiangolo.com/tutorial/\
+        dependencies/#declare-the-dependency-in-the-dependant
+    """
     nightreport_table = state.nightreport_db.nightreport_table
 
     # Names of selection arguments

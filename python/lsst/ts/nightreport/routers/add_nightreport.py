@@ -34,7 +34,24 @@ async def add_nightreport(
     ),
     state: SharedState = fastapi.Depends(get_shared_state),
 ) -> NightReport:
-    """Add a night report to the database and return the added report."""
+    """Add a report to the database and return the added report.
+
+    Notes
+    -----
+    This is a FastAPI endpoint.
+    For more information on FastAPI use of APIRouter,
+    see https://fastapi.tiangolo.com/tutorial/.
+
+    Most of the parameters are FastAPI.Body parameters.
+    The state parameter is a FastAPI.Depends parameter
+    with the database shared state.
+
+    See also:
+    - https://fastapi.tiangolo.com/tutorial/\
+        body-multiple-params/#singular-values-in-body
+    - https://fastapi.tiangolo.com/tutorial/dependencies/\
+        #declare-the-dependency-in-the-dependant
+    """
     curr_tai = astropy.time.Time.now()
 
     nightreport_table = state.nightreport_db.nightreport_table

@@ -46,10 +46,15 @@ def get_env(name: str, default: None | str = None) -> str:
 
     Parameters
     ----------
-    name
+    name : `str`
         The name of the environment variable.
-    default
+    default : `str` or `None`
         The default value; if None then raise ValueError if absent.
+
+    Returns
+    -------
+    value : `str`
+        The value of the environment variable.
     """
     if default is not None and not isinstance(default, str):
         raise ValueError(f"default={default!r} must be a str or None")
@@ -60,7 +65,25 @@ def get_env(name: str, default: None | str = None) -> str:
 
 
 def create_db_url() -> str:
-    """Create the nightreport database URL from environment variables."""
+    """Create the nightreport database URL from environment variables.
+
+    Notes
+    -----
+    Reads the following env variables:
+    - NIGHTREPORT_DB_USER: Nightreport database user name.
+    - NIGHTREPORT_DB_PASSWORD: Nightreport database user password.
+    - NIGHTREPORT_DB_HOST: Nightreport database TCP/IP host.
+    - NIGHTREPORT_DB_PORT: Nightreport database TCP/IP port.
+    - NIGHTREPORT_DB_DATABASE: Name of nightreport database.
+
+    Returns
+    -------
+    url : `str`
+        URL to the nightreport database to be used
+        as sqlalchemy.url configuration.
+        See also `lsst.ts.nightreport.database.NightReportDatabase`.
+
+    """
     nightreport_db_user = get_env("NIGHTREPORT_DB_USER", "nightreport")
     nightreport_db_password = get_env("NIGHTREPORT_DB_PASSWORD", "")
     nightreport_db_host = get_env("NIGHTREPORT_DB_HOST", "localhost")
@@ -81,8 +104,8 @@ class SharedState:
 
     Attributes
     ----------
-    nightreport_db : sa.Table
-    site_id : str
+    nightreport_db : `sa.Table`
+    site_id : `str`
         Name identifying where the nightreport service is running.
         Values include: "summit" and "base".
 
@@ -152,6 +175,11 @@ def get_shared_state() -> SharedState:
     ------
     RuntimeError
             If the shared state has not been created.
+
+    Returns
+    -------
+    state : `lsst.ts.nightreport.shared_state.SharedState`
+        The application shared state.
     """
     global _shared_state
     if _shared_state is None:
@@ -160,6 +188,12 @@ def get_shared_state() -> SharedState:
 
 
 def has_shared_state() -> bool:
-    """Has the application shared state been created?"""
+    """Has the application shared state been created?
+
+    Returns
+    -------
+    has_shared_state : `bool`
+        True if the shared state has been created.
+    """
     global _shared_state
     return _shared_state is not None
