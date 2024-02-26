@@ -31,7 +31,7 @@ __all__ = [
 
 import logging
 import os
-import urllib
+import urllib.parse
 
 import sqlalchemy as sa
 
@@ -48,7 +48,7 @@ def get_env(name: str, default: None | str = None) -> str:
     ----------
     name : `str`
         The name of the environment variable.
-    default : `str` or `None`
+    default : `str` | `None`
         The default value; if None then raise ValueError if absent.
 
     Returns
@@ -148,7 +148,7 @@ async def create_shared_state() -> None:
     Raises
     ------
     RuntimeError
-            If the shared state has already been created.
+        If the shared state has already been created.
     """
     global _shared_state
     if _shared_state is not None:
@@ -174,7 +174,7 @@ def get_shared_state() -> SharedState:
     Raises
     ------
     RuntimeError
-            If the shared state has not been created.
+        If the shared state has not been created.
 
     Returns
     -------

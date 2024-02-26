@@ -23,6 +23,7 @@ import datetime
 import os
 import random
 
+import psycopg
 import pytest
 from lsst.ts.nightreport.testutils import create_test_client, modify_environ
 
@@ -30,7 +31,7 @@ random.seed(12)
 
 
 @pytest.mark.asyncio
-async def test_create_client_errors(postgresql) -> None:
+async def test_create_client_errors(postgresql: psycopg.Connection) -> None:
     # num_edited must be < num_reports (unless both are 0)
     with pytest.raises(ValueError):
         async with create_test_client(postgresql, num_reports=5, num_edited=5):

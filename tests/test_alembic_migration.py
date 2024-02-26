@@ -55,9 +55,14 @@ async def create_database(
 ) -> collections.abc.AsyncGenerator[AsyncEngine, None]:
     """Create an empty database and set env vars to point to it.
 
-    Returns
-    -------
-    url
+    Parameters
+    ----------
+    postgresql : `psycopg.Connection`
+        Connection to the PostgreSQL server.
+
+    Yields
+    ------
+    url : `sqlalchemy.ext.asyncio.engine.AsyncEngine`
         URL to database
     """
     with postgresql as conn:
@@ -79,14 +84,14 @@ async def get_column_info(
 
     Parameters
     ----------
-    connection
+    connection : `sqlalchemy.ext.asyncio.engine.AsyncConnection`
         Async connection
-    table
+    table : `str`
         Table name
 
     Returns
     -------
-    info
+    info : `list[dict[str, typing.Any]]`
         A list of dicts, with one entry per column.
         Each dict includes the following keys:
         "name", "type", "nullable", "default", and "autoincrement"
@@ -108,14 +113,14 @@ async def get_column_names(connection: AsyncConnection, table: str) -> list[str]
 
     Parameters
     ----------
-    connection
+    connection : `sqlalchemy.ext.asyncio.engine.AsyncConnection`
         Async connection
-    table
+    table : `str`
         Table name
 
     Returns
     -------
-    column_names
+    column_names : `list[str]`
         A list of column names.
     """
     column_info = await get_column_info(connection=connection, table=table)
@@ -127,12 +132,12 @@ async def get_table_names(connection: AsyncConnection) -> list[str]:
 
     Parameters
     ----------
-    connection
+    connection : `sqlalchemy.ext.asyncio.engine.AsyncConnection`
         Async connection
 
     Returns
     -------
-    table_names
+    table_names : `list[str]`
         A list of table names.
     """
 
@@ -150,7 +155,10 @@ async def get_table_names(connection: AsyncConnection) -> list[str]:
 def create_old_report_table() -> sa.Table:
     """Make a model of the oldest message table supported by alembic.
 
-    This is the table in nightreport version 0.2.
+    Returns
+    -------
+    table : `sqlalchemy.Table`
+        The table model.
     """
     table = sa.Table(
         "nightreport",
@@ -193,7 +201,7 @@ def create_old_report_table() -> sa.Table:
 
 
 @pytest.mark.asyncio
-async def test_no_report_table(postgresql) -> None:
+async def test_no_report_table(postgresql: psycopg.Connection) -> None:
     async with create_database(postgresql) as engine:
         async with engine.connect() as connection:
             table_names = await get_table_names(connection)
@@ -204,41 +212,3 @@ async def test_no_report_table(postgresql) -> None:
         async with engine.connect() as connection:
             table_names = await get_table_names(connection)
             assert set(table_names) == {"alembic_version"}
-
-
-# class AlembicMigrationTestCase(unittest.IsolatedAsyncioTestCase):
-#     async def test_old_message_table(self) -> None:
-#         new_columns = {
-#             "systems",
-#             "subsystems",
-#             "cscs",
-#             "date_begin",
-#             "date_end",
-#         }
-#         async with create_database() as engine:
-#             old_message_table = create_old_report_table()
-#             async with engine.begin() as connection:
-#                 await connection.run_sync(
-#                     old_message_table.metadata.create_all
-#                 )
-
-#                 table_names = await get_table_names(connection)
-#                 assert table_names == ["message"]
-
-#                 column_names = await get_column_names(
-#                     connection, table="message"
-#                 )
-#                 assert new_columns & set(column_names) == set()
-
-#             subprocess.run(
-#                 ["alembic", "upgrade", "head"], env=os.environ.copy()
-#             )
-
-#             async with engine.connect() as connection:
-#                 table_names = await get_table_names(connection)
-#                 assert set(table_names) == {"alembic_version", "message"}
-
-#                 column_names = await get_column_names(
-#                     connection, table="message"
-#                 )
-#                 assert new_columns < set(column_names)

@@ -26,6 +26,7 @@ import random
 import typing
 
 import httpx
+import psycopg
 import pytest
 from lsst.ts.nightreport.nightreport import NIGHTREPORT_FIELDS
 from lsst.ts.nightreport.testutils import (
@@ -62,17 +63,18 @@ def assert_good_find_response(
 
     Parameters
     ----------
-    response
+    response : `httpx.Response`
         Response from find_reports command.
-    reports
+    reports : `list[ReportDictT]`
         All reports in the database (in any order).
-    predicate
+    predicate : `collections.abc.Callable`
         Callable that takes one report and returns True if a report
         meets the find criteria, False if not.
 
     Returns
-    found_reports
-        The found reports.
+    -------
+    found_reports : `list[ReportDictT]`
+        Reports that meet the find criteria.
     """
     found_reports = assert_good_response(response)
     for report in found_reports:
@@ -89,9 +91,9 @@ def assert_reports_ordered(reports: list[ReportDictT], order_by: list[str]) -> N
 
     Parameters
     ----------
-    reports
-        Reports to test
-    order_by
+    reports : `list[ReportDictT]`
+        Reports to test.
+    order_by : `list[str]`
         Field names by which the data should be ordered.
         Each name can be prefixed by "-" to mean descending order.
     """
@@ -116,11 +118,11 @@ def assert_two_reports_ordered(
 
     Parameters
     ----------
-    report1
+    report1 : `ReportDictT`
         A report.
-    report2
+    report2 : `ReportDictT`
         The next report.
-    order_by
+    order_by : `list[str]`
         Field names by which the data should be ordered.
         Each name can be prefixed by "-" to mean descending order.
     """
@@ -145,10 +147,21 @@ def assert_two_reports_ordered(
 
 
 def cmp_report_field(field: str, val1: typing.Any, val2: typing.Any) -> int:
-    """Return -1 if val1 < val2, 0 if val1 == val2, 1 if val1 > val2.
+    """Compare two report fields.
 
-    Value None is equal to None and larger than every value.
-    This mimics how PostgreSQL handles NULL.
+    Parameters
+    ----------
+    field : `str`
+        Field name.
+    val1 : `typing.Any`
+        Value of field in first report.
+    val2 : `typing.Any`
+        Value of field in second report.
+
+    Returns
+    -------
+    cmp_result : `int`
+        Return -1 if val1 < val2, 0 if val1 == val2, 1 if val1 > val2.
     """
     if val1 == val2:
         return 0
@@ -165,13 +178,26 @@ def get_missing_report(
     reports: list[ReportDictT],
     found_reports: list[ReportDictT],
 ) -> list[ReportDictT]:
-    """Get reports that were not found."""
+    """Get reports that were not found.
+
+    Parameters
+    ----------
+    reports : `list[ReportDictT]`
+        All reports in the database (in any order).
+    found_reports : `list[ReportDictT]`
+        Reports that were found.
+
+    Returns
+    -------
+    missing_reports : `list[ReportDictT]`
+        Reports that were not found.
+    """
     found_ids = set(found_report["id"] for found_report in found_reports)
     return [report for report in reports if str(report["id"]) not in found_ids]
 
 
 @pytest.mark.asyncio
-async def test_find_reports(postgresql) -> None:
+async def test_find_reports(postgresql: psycopg.Connection) -> None:
     num_reports = 12
     num_edited = 6  # Must be at least 4 in order to test ranges.
     async with create_test_client(

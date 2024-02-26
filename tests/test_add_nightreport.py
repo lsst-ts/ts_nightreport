@@ -20,6 +20,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import httpx
+import psycopg
 import pytest
 from lsst.ts.nightreport.testutils import (
     ReportDictT,
@@ -34,14 +35,14 @@ def assert_good_add_response(response: httpx.Response, add_args: dict) -> Report
 
     Parameters
     ----------
-    response
+    response : `httpx.Response`
         Response to HTTP request.
-    add_args:
+    add_args : `dict`
         Arguments to add_report.
 
     Returns
     -------
-    report
+    report: `ReportDictT`
         The report added.
     """
     report = assert_good_response(response)
@@ -54,7 +55,7 @@ def assert_good_add_response(response: httpx.Response, add_args: dict) -> Report
 
 
 @pytest.mark.asyncio
-async def test_add_report(postgresql) -> None:
+async def test_add_report(postgresql: psycopg.Connection) -> None:
     async with create_test_client(postgresql, num_reports=0) as (
         client,
         reports,

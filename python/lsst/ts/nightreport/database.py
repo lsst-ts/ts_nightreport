@@ -36,9 +36,9 @@ class NightReportDatabase:
 
     Parameters
     ----------
-    nightreport_table: sa.Table
+    nightreport_table : `sa.Table`
         Report table.
-    url: str
+    url : `str`
         URL of night report database server in the form:
         postgresql://[user[:password]@][netloc][:port][/dbname]
     """

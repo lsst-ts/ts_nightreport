@@ -93,8 +93,11 @@ NIGHTREPORT_FIELDS = tuple(set(NightReport.schema()["properties"].keys()))
 def _make_report_order_by_values() -> tuple[str, ...]:
     """Make a tuple of valid order_by values for find_nightreports.
 
-    Return a tuple of all field names,
-    plus those same field names with a leading "-".
+    Returns
+    -------
+    order_by_values : `tuple[str, ...]`
+        A  tuple of all field names,
+        plus those same field names with a leading "-".
     """
     order_by_values = []
     for field in NightReport.schema()["properties"]:

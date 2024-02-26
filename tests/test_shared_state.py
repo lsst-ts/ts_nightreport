@@ -22,6 +22,7 @@
 import typing
 
 import asyncpg.exceptions
+import psycopg
 import pytest
 from lsst.ts.nightreport.create_tables import SITE_ID_LEN
 from lsst.ts.nightreport.shared_state import (
@@ -40,7 +41,7 @@ from lsst.ts.nightreport.testutils import (
 
 
 @pytest.mark.asyncio
-async def test_shared_state(postgresql):
+async def test_shared_state(postgresql: psycopg.Connection) -> None:
     try:
         with postgresql as conn:
             postgresql_url = (

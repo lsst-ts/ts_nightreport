@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# type: ignore
+
 import asyncio
 import logging
 from collections.abc import Iterable
@@ -89,8 +91,7 @@ def do_run_migrations(connection):
 async def run_migrations_online():
     """Run migrations in 'online' mode.
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
+    Create an Engine and associate a connection with the context.
     """
     connectable = AsyncEngine(
         engine_from_config(

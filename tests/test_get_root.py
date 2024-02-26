@@ -21,12 +21,13 @@
 
 import http
 
+import psycopg
 import pytest
 from lsst.ts.nightreport.testutils import create_test_client
 
 
 @pytest.mark.asyncio
-async def test_get_root(postgresql) -> None:
+async def test_get_root(postgresql: psycopg.Connection) -> None:
     async with create_test_client(postgresql, num_reports=0) as (client, reports):
         response = await client.get("/nightreport/")
         assert response.status_code == http.HTTPStatus.OK

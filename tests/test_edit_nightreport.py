@@ -24,6 +24,7 @@ import random
 import uuid
 
 import httpx
+import psycopg
 import pytest
 from lsst.ts.nightreport.testutils import (
     ArgDictT,
@@ -41,7 +42,22 @@ def assert_good_edit_response(
     old_report: ReportDictT,
     edit_args: ArgDictT,
 ) -> ReportDictT:
-    """Assert that edit reports succeeded and return the new report."""
+    """Assert that edit reports succeeded and return the new report.
+
+    Parameters
+    ----------
+    response : `httpx.Response`
+        Response to HTTP request.
+    old_report : `ReportDictT`
+        The report before the edit.
+    edit_args : `ArgDictT`
+        Arguments to edit_report.
+
+    Returns
+    -------
+    new_report: `ReportDictT`
+        The report after the edit.
+    """
     new_report = assert_good_response(response)
     assert str(new_report["parent_id"]) == str(old_report["id"])
     assert new_report["is_valid"]
@@ -70,7 +86,7 @@ def assert_good_edit_response(
 
 
 @pytest.mark.asyncio
-async def test_edit_report(postgresql) -> None:
+async def test_edit_report(postgresql: psycopg.Connection) -> None:
     async with create_test_client(postgresql, num_reports=1) as (
         client,
         reports,

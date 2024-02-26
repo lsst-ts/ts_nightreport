@@ -55,8 +55,13 @@ async def root(request: starlette.requests.Request) -> str:
 
     Parameters
     ----------
-    request : starlette.requests.Request
+    request : `starlette.requests.Request`
         The request object for the HTTP request.
+
+    Returns
+    -------
+    html : `str`
+        The HTML for the root page.
     """
     return f"""<html>
     <head>

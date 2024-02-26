@@ -43,12 +43,12 @@ def create_nightreport_table(metadata: sa.MetaData) -> sa.Table:
 
     Parameters
     ----------
-    metadata: sa.MetaData
+    metadata : `sa.MetaData`
         SQLAlchemy metadata object.
 
     Returns
     -------
-    table: sa.Table
+    table : `sa.Table`
         SQLAlchemy table object for night report.
     """
     table = sa.Table(

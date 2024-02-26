@@ -19,13 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import psycopg
 import pytest
 from lsst.ts.nightreport.shared_state import get_shared_state
 from lsst.ts.nightreport.testutils import assert_good_response, create_test_client
 
 
 @pytest.mark.asyncio
-async def test_get_root(postgresql) -> None:
+async def test_get_root(postgresql: psycopg.Connection) -> None:
     async with create_test_client(postgresql, num_reports=0) as (
         client,
         reports,

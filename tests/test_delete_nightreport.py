@@ -22,6 +22,7 @@
 import http
 import uuid
 
+import psycopg
 import pytest
 from lsst.ts.nightreport.testutils import (
     assert_good_response,
@@ -31,7 +32,7 @@ from lsst.ts.nightreport.testutils import (
 
 
 @pytest.mark.asyncio
-async def test_delete_report(postgresql) -> None:
+async def test_delete_report(postgresql: psycopg.Connection) -> None:
     async with create_test_client(postgresql, num_reports=5) as (
         client,
         reports,

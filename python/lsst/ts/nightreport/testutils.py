@@ -74,7 +74,24 @@ async def create_test_client(
     num_reports: int = 0,
     num_edited: int = 0,
 ) -> collections.abc.AsyncGenerator[tuple[httpx.AsyncClient, list[ReportDictT]], None]:
-    """Create the test database, test server, and httpx client."""
+    """Create the test database, test server, and httpx client.
+
+    Parameters
+    ----------
+    postgresql : `psycopg.Connection`
+        A connection to a PostgreSQL database.
+    num_reports : `typing.Optional[int]`
+        Number of reports to create in the test database.
+        Default is 0.
+    num_edited : `typing.Optional[int]`
+        Number of these reports that should be edited versions.
+        Default is 0.
+
+    Yields
+    ------
+    tuple : `tuple[httpx.AsyncClient, list[ReportDictT]]`
+        A tuple of the httpx client and the reports in the test database.
+    """
     with postgresql as conn:
         postgresql_url = f"postgresql://{conn.info.user}@{conn.info.host}:{conn.info.port}/{conn.info.dbname}"
         reports = await create_test_database(
@@ -166,10 +183,13 @@ def assert_good_response(response: httpx.Response) -> typing.Any:
 
     Parameters
     ----------
-    command
-        The command. If None then return the whole response, else return
-        the response from the command (response["data"][command]) --
-        a single report dict or a list of report dicts.
+    response : `httpx.Response`
+        The response to check.
+
+    Returns
+    -------
+    data : `typing.Any`
+        The data from the response.
     """
     assert (
         response.status_code == http.HTTPStatus.OK
@@ -187,6 +207,13 @@ def assert_reports_equal(report1: ReportDictT, report2: ReportDictT) -> None:
     or ISOT strings.
     Handle timedelta fields specially they may be datetime.timedelta
     or float seconds.
+
+    Parameters
+    ----------
+    report1 : `ReportDictT`
+        The first report.
+    report2 : `ReportDictT`
+        The second report.
     """
     assert report1.keys() == report2.keys()
     for field in report1:
@@ -208,6 +235,16 @@ def cast_special(value: typing.Any) -> typing.Any:
     * datetime.datetime: converted to an ISO string with "T" separator.
     * datetime.timedela: converted to float seconds.
     * uuid.UUID: convert to a string.
+
+    Parameters
+    ----------
+    value : `typing.Any`
+        The value to cast.
+
+    Returns
+    -------
+    value : `typing.Any`
+        The cast value.
     """
     if isinstance(value, datetime.datetime):
         return value.isoformat(sep="T")
@@ -219,7 +256,18 @@ def cast_special(value: typing.Any) -> typing.Any:
 
 
 def dsn_from_connection_info(conn_info: psycopg.ConnectionInfo) -> dict[str, str]:
-    """Get a database dsn from a psycopg.ConnectionInfo."""
+    """Get a database dsn from a psycopg.ConnectionInfo.
+
+    Parameters
+    ----------
+    conn_info : `psycopg.ConnectionInfo`
+        The connection info.
+
+    Returns
+    -------
+    dsn : `dict[str, str]`
+        The database dsn.
+    """
     return {
         "user": conn_info.user,
         "host": conn_info.host,
@@ -245,27 +293,47 @@ def db_config_from_dsn(dsn: dict[str, str]) -> dict[str, str]:
                 import nightreport.app
 
                 client = fastapi.testclient.TestClient(nightreport.main.app)
+
+    Parameters
+    ----------
+    dsn : `dict[str, str]`
+        The database dsn dict.
+
+    Returns
+    -------
+    db_config : `dict[str, str]`
+        The app database configuration arguments.
+
     """
     assert dsn.keys() <= {"port", "host", "user", "database"}
     return {f"nightreport_db_{key}".upper(): str(value) for key, value in dsn.items()}
 
 
 def random_bool() -> bool:
-    """Return a random bool."""
+    """Create a random bool.
+
+    Returns
+    -------
+    value : `bool`
+        The random bool. Half of the time it will be True.
+    """
     return random.random() > 0.5
 
 
 def random_date(precision: int = 0) -> datetime.datetime:
-    """Return a random date between MIN_DATE_RANDOM_REPORT
+    """Create a random date between MIN_DATE_RANDOM_REPORT
     and MAX_DATE_RANDOM_REPORT.
 
     Parameters
     ----------
-    precision
+    precision : `int`
         The number of decimal digits of seconds.
         If 0 then the output has no decimal point after the seconds field.
 
-    Return the same format as dates returned from the database.
+    Returns
+    -------
+    date : `datetime.datetime`
+        The random date.
     """
     min_date_unix = astropy.time.Time(MIN_DATE_RANDOM_REPORT).unix
     max_date_unix = astropy.time.Time(MAX_DATE_RANDOM_REPORT).unix
@@ -275,14 +343,17 @@ def random_date(precision: int = 0) -> datetime.datetime:
 
 
 def random_duration(precision: int = 0) -> datetime.timedelta:
-    """Return a random duration. Half of the time return duration=0.
+    """Create a random duration. Half of the time return duration=0.
 
     Parameters
     ----------
     precision : int
         Number of digits after the decimal point of seconds.
 
-    Returns the same format as durations returned from the database.
+    Returns
+    -------
+    duration : `datetime.timedelta`
+        The random duration.
     """
     if random.random() > 0.5:
         return datetime.timedelta()
@@ -292,11 +363,21 @@ def random_duration(precision: int = 0) -> datetime.timedelta:
 
 
 def random_str(nchar: int) -> str:
-    """Return a random string of nchar printable UTF-8 characters.
+    """Create a random string of nchar printable UTF-8 characters.
 
     The list of characters is limited, but attempts to
     cover a wide range of potentially problematic characters
     including ' " \t \n \\ and an assortment of non-ASCII characters.
+
+    Parameters
+    ----------
+    nchar : `int`
+        The number of characters in the string.
+
+    Returns
+    -------
+    string : `str`
+        The random string.
     """
     chars = list(
         "abcdefgABCDEFG012345 \t\n\r"
@@ -309,18 +390,24 @@ def random_str(nchar: int) -> str:
 
 
 def random_strings(words: list[str], max_num: int = 3) -> list[str]:
-    """Return a list of 0 or more strings from a list of strings.
-
-    Parameters
-    ----------
-    strings
-        List of strings from which to select returned strings.
-    max_num
-        The maximum number of returned strings.
+    """Create a list of 0 or more strings from a list of strings.
 
     Half of the time it will return 0 items.
     The rest of the time it will return 1 - max_num values
     in random order, with equal probability per number of returned strings.
+
+    Parameters
+    ----------
+    strings : `list[str]`
+        List of strings from which to select returned strings.
+    max_num : `typing.Optional[int]`
+        The maximum number of returned strings.
+        Default is 3.
+
+    Returns
+    -------
+    strings : `list[str]`
+        The random list of strings.
     """
     if random.random() < 0.5:
         return []
@@ -329,7 +416,13 @@ def random_strings(words: list[str], max_num: int = 3) -> list[str]:
 
 
 def random_day_obs() -> int:
-    """Return a random day_obs, as an integer in the form YYYYMMDD."""
+    """Return a random day_obs, as an integer in the form YYYYMMDD.
+
+    Returns
+    -------
+    day_obs : `int`
+        The random day_obs.
+    """
     return int(random_date().isoformat().split("T")[0].replace("-", ""))
 
 
@@ -359,6 +452,11 @@ def random_report() -> ReportDictT:
       * Set parent_report["is_valid"] = False
       * Set parent_report["date_invalidated"] =
         edited_report["date_added"]
+
+    Returns
+    -------
+    report : `ReportDictT`
+        The random report.
     """
 
     report = dict(
@@ -389,17 +487,20 @@ def random_reports(num_reports: int, num_edited: int) -> list[ReportDictT]:
 
     Parameters
     ----------
-    num_reports
-        Number of reports
-    num_edited
+    num_reports : `int`
+        Number of reports.
+    num_edited : `int`
         Number of these reports that should be edited versions
         of earlier reports.
 
+    Returns
+    -------
+    reports : `list[ReportDictT]`
+        The random reports.
+
     Notes
     -----
-
     The list will be in order of increasing ``date_added``.
-
     Link about half of the reports to an older report.
     """
     report_list = [random_report() for i in range(num_reports)]
@@ -436,20 +537,20 @@ async def create_test_database(
 
     Parameters
     ----------
-    postgresql_url
+    postgresql_url : `str`
         URL to PostgreSQL database. Typically a test database created using::
 
             with testing.postgresql.Postgresql() as postgresql:
                 postgres_url = postgresql.url()
-    num_reports
-        Number of reports
-    num_edited, optional
+    num_reports : `int`
+        Number of reports.
+    num_edited : `typing.Optional[int]`
         Number of these reports that should be edited versions
         of earlier reports. Must be 0 or < ``num_reports``.
 
     Returns
     -------
-    reports
+    reports : `list[ReportDictT]`
         The randomly created reports. Each report is a dict of field: value
         and all fields are set.
     """
