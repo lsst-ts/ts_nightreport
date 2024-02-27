@@ -1,0 +1,3 @@
+
+@Library('JenkinsShared')_
+CondaPipeline([], "ts-nightreport", "lsst.ts.nightreport", "noarch")

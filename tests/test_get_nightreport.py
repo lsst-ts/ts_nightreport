@@ -19,7 +19,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import setuptools_scm
-from setuptools import setup
+import http
+import uuid
 
-setup(version=setuptools_scm.get_version())
+import psycopg
+import pytest
+from lsst.ts.nightreport.testutils import (
+    assert_good_response,
+    assert_reports_equal,
+    create_test_client,
+)
+
+
+@pytest.mark.asyncio
+async def test_get_report(postgresql: psycopg.Connection) -> None:
+    async with create_test_client(postgresql, num_reports=5) as (
+        client,
+        reports,
+    ):
+        chosen_report = reports[2]
+        id = chosen_report["id"]
+        response = await client.get(f"/nightreport/reports/{id}")
+        report = assert_good_response(response)
+        assert_reports_equal(report, chosen_report)
+
+        # Test that a non-existent report returns NOT_FOUND
+        bad_id = uuid.uuid4()
+        response = await client.get(f"/nightreport/reports/{bad_id}")
+        assert response.status_code == http.HTTPStatus.NOT_FOUND

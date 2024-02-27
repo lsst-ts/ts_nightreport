@@ -19,7 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import setuptools_scm
-from setuptools import setup
+import uvicorn
+from lsst.ts.nightreport.main import app
 
-setup(version=setuptools_scm.get_version())
+
+def run_nightreport() -> None:
+    """Run the night report REST API web server."""
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+
+
+if __name__ == "__main__":
+    run_nightreport()

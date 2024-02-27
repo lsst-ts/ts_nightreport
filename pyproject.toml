@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools-scm[toml]>=6.2"]
+requires = ["setuptools>=61", "setuptools-scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -19,7 +19,7 @@ version = { attr = "setuptools_scm.get_version" }
 where = [ "python" ]
 
 [project.scripts]
-run_nightreport = "lsst.ts.nightreport:run_nightreport"
+run_nightreport = "lsst.ts.nightreport.run_nightreport:run_nightreport"
 
 [tool.setuptools_scm]
 write_to = "python/lsst/ts/nightreport/version.py"

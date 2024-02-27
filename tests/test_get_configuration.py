@@ -19,7 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import setuptools_scm
-from setuptools import setup
+import psycopg
+import pytest
+from lsst.ts.nightreport.shared_state import get_shared_state
+from lsst.ts.nightreport.testutils import assert_good_response, create_test_client
 
-setup(version=setuptools_scm.get_version())
+
+@pytest.mark.asyncio
+async def test_get_root(postgresql: psycopg.Connection) -> None:
+    async with create_test_client(postgresql, num_reports=0) as (
+        client,
+        reports,
+    ):
+        shared_state = get_shared_state()
+        for suffix in ("", "/"):
+            response = await client.get("/nightreport/configuration" + suffix)
+            data = assert_good_response(response)
+            assert data["site_id"] == shared_state.site_id
