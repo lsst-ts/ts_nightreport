@@ -32,6 +32,10 @@ async def add_nightreport(
         default=...,
         description="User agent (name of application creating the report)",
     ),
+    observers_crew: list[str] = fastapi.Body(
+        default=[],
+        description="List of observers and crew members present during the night",
+    ),
     state: SharedState = fastapi.Depends(get_shared_state),
 ) -> NightReport:
     """Add a report to the database and return the added report.
@@ -69,6 +73,8 @@ async def add_nightreport(
                 user_id=user_id,
                 user_agent=user_agent,
                 date_added=curr_tai.tai.datetime,
+                # Added 2024-03-06
+                observers_crew=observers_crew,
             )
             .returning(sa.literal_column("*"))
         )

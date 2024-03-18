@@ -35,6 +35,10 @@ async def edit_nightreport(
         default=None,
         description="User agent (which app created the report)",
     ),
+    observers_crew: None | list[str] = fastapi.Body(
+        default=None,
+        description="List of observers and crew members present during the night",
+    ),
     state: SharedState = fastapi.Depends(get_shared_state),
 ) -> NightReport:
     """Edit an existing report stored in the database
@@ -82,6 +86,8 @@ async def edit_nightreport(
         "site_id",
         "user_id",
         "user_agent",
+        # Added 2024-03-06
+        "observers_crew",
     ):
         value = locals()[name]
         if value is not None:

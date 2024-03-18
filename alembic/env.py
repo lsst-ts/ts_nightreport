@@ -27,7 +27,7 @@ from collections.abc import Iterable
 from logging.config import fileConfig
 
 from lsst.ts.nightreport.shared_state import create_db_url
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config, inspect, pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from alembic import context
@@ -84,8 +84,11 @@ def do_run_migrations(connection):
 
     # This must be done after configuring the context,
     # else the migration does nothing.
+    inspector = inspect(connection)
+    table_names = set(inspector.get_table_names())
+
     with context.begin_transaction():
-        context.run_migrations()
+        context.run_migrations(log=log, table_names=table_names)
 
 
 async def run_migrations_online():
