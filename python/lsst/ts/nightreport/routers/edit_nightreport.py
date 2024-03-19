@@ -1,5 +1,6 @@
 __all__ = ["edit_nightreport"]
 
+import datetime
 import http
 
 import astropy.time
@@ -29,11 +30,18 @@ async def edit_nightreport(
         default=None,
         description="URL of the Confluence page containing the report",
     ),
+    date_sent: None | datetime.datetime = fastapi.Body(
+        default=None, description="TAI date when the report was confirmed and sent"
+    ),
     site_id: None | str = fastapi.Body(default=None, description="Site ID"),
     user_id: None | str = fastapi.Body(default=None, description="User ID"),
     user_agent: None | str = fastapi.Body(
         default=None,
         description="User agent (which app created the report)",
+    ),
+    observers_crew: None | list[str] = fastapi.Body(
+        default=None,
+        description="List of observers and crew members present during the night",
     ),
     state: SharedState = fastapi.Depends(get_shared_state),
 ) -> NightReport:
@@ -79,9 +87,12 @@ async def edit_nightreport(
         "summary",
         "telescope_status",
         "confluence_url",
+        "date_sent",
         "site_id",
         "user_id",
         "user_agent",
+        # Added 2024-03-06
+        "observers_crew",
     ):
         value = locals()[name]
         if value is not None:

@@ -7,6 +7,7 @@ Revises:
 Create Date: 2024-02-22 15:33:28.118372
 
 """
+import logging
 
 import sqlalchemy as sa
 
@@ -19,9 +20,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade(log: logging.Logger, table_names: set[str]) -> None:
     pass
 
 
-def downgrade():
+def downgrade(log: logging.Logger, table_names: set[str]) -> None:
     pass
