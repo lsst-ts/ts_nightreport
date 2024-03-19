@@ -80,6 +80,11 @@ class NightReport(BaseModel):
         description="Report ID of night report this is an edited version of."
     )
 
+    # Added 2024-03-06
+    observers_crew: list[str] = Field(
+        title="List of observers and crew members present during the night."
+    )
+
     class Config:
         orm_mode = True
         from_attributes = True

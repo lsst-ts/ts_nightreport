@@ -60,6 +60,7 @@ MAX_TIME_DELTA_RANDOM_REPORT = datetime.timedelta(days=2)
 
 # Other test data
 TEST_SITE_ID = "test"
+TEST_CREW_MEMBERS = "user1 user2 user3".split()
 
 # Type annotation aliases
 ReportDictT = dict[str, typing.Any]
@@ -472,6 +473,7 @@ def random_report() -> ReportDictT:
         is_valid=True,
         date_added=random_date(),
         date_sent=None,
+        observers_crew=random_strings(TEST_CREW_MEMBERS, max_num=3),
         date_invalidated=None,
         parent_id=None,
     )

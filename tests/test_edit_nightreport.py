@@ -106,6 +106,7 @@ async def test_edit_report(postgresql: psycopg.Connection) -> None:
             confluence_url="https://new.example.com",
             user_id="new user_id",
             user_agent="new user_agent",
+            observers_crew=["new observer"],
         )
         # Repeatedly edit the old report. Each time
         # add a new version of the report with one field omitted,
@@ -113,9 +114,6 @@ async def test_edit_report(postgresql: psycopg.Connection) -> None:
         # After each edit, find the old report and check that
         # the date_invalidated has been suitably updated.
         for del_key in full_edit_args:
-            print("######")
-            print(del_key)
-            print("######")
             edit_args = full_edit_args.copy()
             del edit_args[del_key]
             edit_response = await client.patch(

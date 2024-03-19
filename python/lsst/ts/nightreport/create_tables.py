@@ -78,6 +78,8 @@ def create_nightreport_table(metadata: sa.MetaData) -> sa.Table:
         ),
         sa.Column("date_invalidated", saty.DateTime(), nullable=True),
         sa.Column("parent_id", UUID(as_uuid=True), nullable=True),
+        # Added 2024-03-06
+        sa.Column("observers_crew", saty.ARRAY(sa.Text), nullable=False),
         # Constraints
         sa.ForeignKeyConstraint(["parent_id"], ["nightreport.id"]),
     )
