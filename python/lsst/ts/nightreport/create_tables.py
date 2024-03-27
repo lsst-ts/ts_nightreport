@@ -35,7 +35,7 @@ from sqlalchemy.dialects.postgresql import UUID
 SITE_ID_LEN = 16
 
 # Length of urls fields
-URLS_LEN = 50
+URLS_LEN = 200
 
 
 def create_nightreport_table(metadata: sa.MetaData) -> sa.Table:
