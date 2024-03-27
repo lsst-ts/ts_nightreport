@@ -73,3 +73,24 @@ async def test_add_report(postgresql: psycopg.Connection) -> None:
         for suffix in ("", "/"):
             response = await client.post("/nightreport/reports" + suffix, json=add_args)
             assert_good_add_response(response=response, add_args=add_args)
+
+
+@pytest.mark.asyncio
+async def test_add_report_too_long_url(postgresql: psycopg.Connection) -> None:
+    async with create_test_client(postgresql, num_reports=0) as (
+        client,
+        reports,
+    ):
+        # Add a report with a URL that is too long.
+        add_args = dict(
+            telescope="AuxTel",
+            day_obs=20240101,
+            summary="A sample report",
+            telescope_status="OK",
+            confluence_url="https://example.com/" + "x" * 200,
+            user_id="test_add_report_too_long_url",
+            user_agent="pytest",
+        )
+        for suffix in ("", "/"):
+            with pytest.raises(Exception):
+                await client.post("/nightreport/reports" + suffix, json=add_args)

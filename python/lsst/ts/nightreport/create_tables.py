@@ -35,7 +35,7 @@ from sqlalchemy.dialects.postgresql import UUID
 SITE_ID_LEN = 16
 
 # Length of urls fields
-URLS_LEN = 50
+URLS_LEN = 200
 
 
 def create_nightreport_table(metadata: sa.MetaData) -> sa.Table:
@@ -64,7 +64,7 @@ def create_nightreport_table(metadata: sa.MetaData) -> sa.Table:
         ),
         sa.Column("summary", saty.Text(), nullable=False),
         sa.Column("telescope_status", saty.Text(), nullable=False),
-        sa.Column("confluence_url", saty.String(length=URLS_LEN)),
+        sa.Column("confluence_url", saty.String(length=URLS_LEN), nullable=False),
         sa.Column("day_obs", saty.Integer(), nullable=False),
         sa.Column("user_id", saty.String(), nullable=False),
         sa.Column("user_agent", saty.String(), nullable=False),
