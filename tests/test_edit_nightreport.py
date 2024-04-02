@@ -135,3 +135,18 @@ async def test_edit_report(postgresql: psycopg.Connection) -> None:
         bad_id = uuid.uuid4()
         response = await client.patch(f"/nightreport/reports/{bad_id}", json=edit_args)
         assert response.status_code == http.HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_edit_report_too_long_url(postgresql: psycopg.Connection) -> None:
+    async with create_test_client(postgresql, num_reports=1) as (
+        client,
+        reports,
+    ):
+        old_id = reports[0]["id"]
+        edit_args = dict(
+            confluence_url="https://example.com/" + "x" * 200,
+        )
+
+        with pytest.raises(Exception):
+            await client.patch(f"/nightreport/reports/{old_id}", json=edit_args)
