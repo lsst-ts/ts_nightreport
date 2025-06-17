@@ -114,8 +114,9 @@ async def create_test_client(
             assert not shared_state.has_shared_state()
             await main.startup_event()
             try:
+                transport = httpx.ASGITransport(app=main.app)
                 async with httpx.AsyncClient(
-                    app=main.app, base_url="http://test"
+                    transport=transport, base_url="http://test"
                 ) as client:
                     assert shared_state.has_shared_state()
                     yield client, reports
