@@ -99,10 +99,11 @@ async def test_edit_report(postgresql: psycopg.Connection) -> None:
 
         full_edit_args = dict(
             site_id="NewSite",
-            telescope="AuxTel",
             day_obs=20240101,
             summary="New report text",
-            telescope_status="OK",
+            weather="New weather",
+            maintel_summary="New maintel summary",
+            auxtel_summary="New auxtel summary",
             confluence_url="https://new.example.com",
             user_id="new user_id",
             user_agent="new user_agent",
