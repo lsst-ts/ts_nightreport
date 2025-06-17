@@ -1,3 +1,12 @@
+v0.1.4 (2025-06-17)
+===================
+
+Documentation
+-------------
+
+- Add version history and towncrier pre-commit hook. (`OSW-570 <https://rubinobs.atlassian.net//browse/OSW-570>`_)
+
+
 v0.1.3 (2024-04-02)
 ===================
 
