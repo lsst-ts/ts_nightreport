@@ -3,7 +3,7 @@
 """initial version
 
 Revision ID: 99e08c61cf29
-Revises: 
+Revises:
 Create Date: 2024-02-22 15:33:28.118372
 
 """
