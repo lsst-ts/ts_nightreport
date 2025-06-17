@@ -7,7 +7,7 @@ import astropy.time
 import fastapi
 import sqlalchemy as sa
 
-from ..nightreport import NightReport, Telescope
+from ..nightreport import NightReport
 from ..shared_state import SharedState, get_shared_state
 
 router = fastapi.APIRouter()
@@ -16,15 +16,16 @@ router = fastapi.APIRouter()
 @router.patch("/reports/{id}", response_model=NightReport)
 async def edit_nightreport(
     id: str,
-    telescope: None | Telescope = fastapi.Body(
-        default=None, description="Telescope name"
-    ),
     day_obs: None | int = fastapi.Body(default=None, description="Day of observation"),
-    summary: None | str = fastapi.Body(
-        default=None, description="NightReport summary text"
+    summary: None | str = fastapi.Body(default=None, description="NightReport summary"),
+    weather: None | str = fastapi.Body(
+        default=None, description="Weather conditions during the night"
     ),
-    telescope_status: None | str = fastapi.Body(
-        default=None, description="Telescope status text"
+    maintel_summary: None | str = fastapi.Body(
+        default=None, description="Simonyi telescope summary"
+    ),
+    auxtel_summary: None | str = fastapi.Body(
+        default=None, description="AuxTel telescope summary"
     ),
     confluence_url: None | str = fastapi.Body(
         default=None,
@@ -82,16 +83,16 @@ async def edit_nightreport(
 
     request_data = dict(id=id, site_id=site_id)
     for name in (
-        "telescope",
         "day_obs",
         "summary",
-        "telescope_status",
+        "weather",
+        "maintel_summary",
+        "auxtel_summary",
         "confluence_url",
         "date_sent",
         "site_id",
         "user_id",
         "user_agent",
-        # Added 2024-03-06
         "observers_crew",
     ):
         value = locals()[name]
