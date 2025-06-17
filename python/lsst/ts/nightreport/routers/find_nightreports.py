@@ -7,7 +7,7 @@ import http
 import fastapi
 import sqlalchemy as sa
 
-from ..nightreport import NIGHTREPORT_ORDER_BY_VALUES, NightReport, Telescope
+from ..nightreport import NIGHTREPORT_ORDER_BY_VALUES, NightReport
 from ..shared_state import SharedState, get_shared_state
 
 router = fastapi.APIRouter()
@@ -29,18 +29,21 @@ async def find_nightreports(
         default=None,
         description="Site IDs.",
     ),
-    telescopes: None | list[Telescope] = fastapi.Query(
-        default=None,
-        description="List of telescope names values. "
-        "Repeat the parameter for each value.",
-    ),
     summary: None | str = fastapi.Query(
         default=None,
-        description="NightReport summary text contains...",
+        description="Night report summary contains...",
     ),
-    telescope_status: None | str = fastapi.Query(
+    weather: None | str = fastapi.Query(
         default=None,
-        description="Telescope status text contains...",
+        description="Weather conditions during the night contains...",
+    ),
+    maintel_summary: None | str = fastapi.Query(
+        default=None,
+        description="Simonyi telescope summary contains...",
+    ),
+    auxtel_summary: None | str = fastapi.Query(
+        default=None,
+        description="AuxTel telescope summary contains...",
     ),
     user_ids: None | list[str] = fastapi.Query(
         default=None,
@@ -130,9 +133,10 @@ async def find_nightreports(
     # Names of selection arguments
     select_arg_names = (
         "site_ids",
-        "telescopes",
         "summary",
-        "telescope_status",
+        "weather",
+        "maintel_summary",
+        "auxtel_summary",
         "user_ids",
         "user_agents",
         "min_day_obs",
@@ -194,7 +198,6 @@ async def find_nightreports(
                     conditions.append(column == None)  # noqa
             elif key in {
                 "site_ids",
-                "telescopes",
                 "user_ids",
                 "user_agents",
             }:
@@ -203,7 +206,7 @@ async def find_nightreports(
                 # by listing the parameter once per value.
                 column = nightreport_table.columns[key[:-1]]
                 conditions.append(column.in_(value))
-            elif key in ("summary", "telescope_status"):
+            elif key in ("summary", "weather", "maintel_summary", "auxtel_summary"):
                 column = nightreport_table.columns[key]
                 conditions.append(column.contains(value))
             elif key in {"is_valid"}:

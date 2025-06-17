@@ -62,10 +62,11 @@ async def test_add_report(postgresql: psycopg.Connection) -> None:
     ):
         # Add a report with only the required fields specified.
         add_args = dict(
-            telescope="AuxTel",
             day_obs=20240101,
             summary="A sample report",
-            telescope_status="OK",
+            weather="Clear skies",
+            maintel_summary="Simonyi telescope was operational",
+            auxtel_summary="AuxTel was operational",
             confluence_url="https://example.com",
             user_id="test_add_report",
             user_agent="pytest",
@@ -83,10 +84,11 @@ async def test_add_report_too_long_url(postgresql: psycopg.Connection) -> None:
     ):
         # Add a report with a URL that is too long.
         add_args = dict(
-            telescope="AuxTel",
             day_obs=20240101,
             summary="A sample report",
-            telescope_status="OK",
+            weather="Clear skies",
+            maintel_summary="Simonyi telescope was operational",
+            auxtel_summary="AuxTel was operational",
             confluence_url="https://example.com/" + "x" * 200,
             user_id="test_add_report_too_long_url",
             user_agent="pytest",

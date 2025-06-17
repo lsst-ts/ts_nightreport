@@ -6,7 +6,7 @@ import astropy.time
 import fastapi
 import sqlalchemy as sa
 
-from ..nightreport import NightReport, Telescope
+from ..nightreport import NightReport
 from ..shared_state import SharedState, get_shared_state
 
 router = fastapi.APIRouter()
@@ -18,12 +18,11 @@ router = fastapi.APIRouter()
 @router.post("/reports", response_model=NightReport)
 @router.post("/reports/", response_model=NightReport, include_in_schema=False)
 async def add_nightreport(
-    telescope: Telescope = fastapi.Body(
-        default=Telescope.maintel, description="Telescope name"
-    ),
     day_obs: int = fastapi.Body(..., description="Day of observation"),
-    summary: str = fastapi.Body(..., description="NightReport text"),
-    telescope_status: str = fastapi.Body(..., description="Telescope status"),
+    summary: str = fastapi.Body(..., description="NightReport summary"),
+    weather: str = fastapi.Body(..., description="Weather conditions during the night"),
+    maintel_summary: str = fastapi.Body(..., description="Simonyi telescope summary"),
+    auxtel_summary: str = fastapi.Body(..., description="AuxTel telescope summary"),
     confluence_url: str = fastapi.Body(
         ..., description="URL of the Confluence page containing the report"
     ),
@@ -65,15 +64,15 @@ async def add_nightreport(
             nightreport_table.insert()
             .values(
                 site_id=state.site_id,
-                telescope=telescope,
                 day_obs=day_obs,
                 summary=summary,
-                telescope_status=telescope_status,
+                weather=weather,
+                maintel_summary=maintel_summary,
+                auxtel_summary=auxtel_summary,
                 confluence_url=confluence_url,
                 user_id=user_id,
                 user_agent=user_agent,
                 date_added=curr_tai.tai.datetime,
-                # Added 2024-03-06
                 observers_crew=observers_crew,
             )
             .returning(sa.literal_column("*"))

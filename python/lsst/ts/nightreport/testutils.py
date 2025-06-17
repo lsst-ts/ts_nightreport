@@ -51,7 +51,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from . import main, shared_state
 from .create_tables import create_nightreport_table
-from .nightreport import NIGHTREPORT_FIELDS, Telescope
+from .nightreport import NIGHTREPORT_FIELDS
 
 # Range of dates for random report.
 MIN_DATE_RANDOM_REPORT = "2021-01-01"
@@ -464,10 +464,11 @@ def random_report() -> ReportDictT:
     report = dict(
         id=None,
         site_id=TEST_SITE_ID,
-        telescope=random.choice([t.value for t in Telescope]),
         day_obs=random_day_obs(),
         summary=random_str(nchar=20),
-        telescope_status=random_str(nchar=20),
+        weather=random_str(nchar=20),
+        maintel_summary=random_str(nchar=20),
+        auxtel_summary=random_str(nchar=20),
         confluence_url=random_str(nchar=30),
         user_id=random_str(nchar=14),
         user_agent=random_str(nchar=12),
