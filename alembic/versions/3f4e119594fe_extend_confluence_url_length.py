@@ -12,7 +12,7 @@ import logging
 
 import sqlalchemy as sa
 
-from alembic import op
+from alembic import op  # type: ignore[attr-defined]
 
 # revision identifiers, used by Alembic.
 revision = "3f4e119594fe"

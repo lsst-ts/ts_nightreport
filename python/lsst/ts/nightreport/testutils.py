@@ -588,6 +588,10 @@ async def create_test_database(
                 .returning(table_report.c.id, table_report.c.is_valid)
             )
             data_report = result_report.fetchone()
+            if data_report is None:
+                raise RuntimeError(
+                    "Failed to insert report into the database: " f"{pruned_report!r}"
+                )
             assert report["id"] == data_report.id
             assert report["is_valid"] == data_report.is_valid
 
