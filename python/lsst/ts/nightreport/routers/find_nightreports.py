@@ -153,7 +153,7 @@ async def find_nightreports(
     # If order_by does not include "id" then append it, to make the order
     # repeatable. Otherwise different calls can return data in different
     # orders, which is a disaster when using limit and offset.
-    order_by_columns = []
+    order_by_columns: list[sa.sql.elements.UnaryExpression] = []
     if order_by is None:
         order_by = ["id"]
     else:
