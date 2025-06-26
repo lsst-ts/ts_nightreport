@@ -45,6 +45,20 @@ def upgrade(log: logging.Logger, table_names: set[str]) -> None:
         sa.Column("auxtel_summary", sa.Text, nullable=True),
     )
 
+    log.info("Make 'telescope' column nullable")
+    op.alter_column(
+        NIGHTREPORT_TABLE_NAME,
+        "telescope",
+        nullable=True,
+    )
+
+    log.info("Make 'telescope_status' column nullable")
+    op.alter_column(
+        NIGHTREPORT_TABLE_NAME,
+        "telescope_status",
+        nullable=True,
+    )
+
 
 def downgrade(log: logging.Logger, table_names: set[str]) -> None:
     if NIGHTREPORT_TABLE_NAME not in table_names:
@@ -59,3 +73,16 @@ def downgrade(log: logging.Logger, table_names: set[str]) -> None:
 
     log.info("Drop column 'auxtel_summary'")
     op.drop_column(NIGHTREPORT_TABLE_NAME, "auxtel_summary")
+
+    log.info("Make 'telescope' column not nullable")
+    op.alter_column(
+        NIGHTREPORT_TABLE_NAME,
+        "telescope",
+        nullable=False,
+    )
+    log.info("Make 'telescope_status' column not nullable")
+    op.alter_column(
+        NIGHTREPORT_TABLE_NAME,
+        "telescope_status",
+        nullable=False,
+    )
