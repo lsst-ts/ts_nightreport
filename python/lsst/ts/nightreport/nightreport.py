@@ -46,11 +46,11 @@ class NightReport(BaseModel):
     summary: str = Field(title="Night report summary.")
 
     # Added 2025-06-16
-    weather: str = Field(title="Weather conditions during the night.")
+    weather: None | str = Field(title="Weather conditions during the night.")
     # Added 2025-06-16
-    maintel_summary: str = Field(title="Simonyi telescope summary.")
+    maintel_summary: None | str = Field(title="Simonyi telescope summary.")
     # Added 2025-06-16
-    auxtel_summary: str = Field(title="AuxTel telescope summary.")
+    auxtel_summary: None | str = Field(title="AuxTel telescope summary.")
 
     confluence_url: str = Field(
         title="URL of the Confluence page with the night report."
