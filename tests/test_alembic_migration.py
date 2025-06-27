@@ -23,7 +23,6 @@ import collections.abc
 import contextlib
 import os
 import subprocess
-import typing
 import uuid
 
 import psycopg
@@ -79,7 +78,7 @@ async def create_database(
 
 async def get_column_info(
     connection: AsyncConnection, table: str
-) -> list[dict[str, typing.Any]]:
+) -> list[sa.engine.interfaces.ReflectedColumn]:
     """Get column info for a specified table.
 
     Parameters
@@ -97,7 +96,7 @@ async def get_column_info(
         "name", "type", "nullable", "default", and "autoincrement"
     """
 
-    def _impl(connection: Connection) -> list[str]:
+    def _impl(connection: Connection) -> list[sa.engine.interfaces.ReflectedColumn]:
         """Synchronous implementation.
 
         Inspect does not work with an async connection

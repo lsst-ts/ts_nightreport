@@ -57,13 +57,21 @@ def create_nightreport_table(metadata: sa.MetaData) -> sa.Table:
         # See https://stackoverflow.com/a/49398042 for UUID:
         sa.Column("id", UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
         sa.Column("site_id", saty.String(length=SITE_ID_LEN)),
+        # Deprecated 2025-06-16
         sa.Column(
             "telescope",
             saty.Enum("AuxTel", "Simonyi", name="telescope_enum"),
-            nullable=False,
+            nullable=True,
         ),
         sa.Column("summary", saty.Text(), nullable=False),
-        sa.Column("telescope_status", saty.Text(), nullable=False),
+        # Deprecated 2025-06-16
+        sa.Column("telescope_status", saty.Text(), nullable=True),
+        # Added 2025-06-16
+        sa.Column("weather", saty.Text(), nullable=True),
+        # Added 2025-06-16
+        sa.Column("maintel_summary", saty.Text(), nullable=True),
+        # Added 2025-06-16
+        sa.Column("auxtel_summary", saty.Text(), nullable=True),
         sa.Column("confluence_url", saty.String(length=URLS_LEN), nullable=False),
         sa.Column("day_obs", saty.Integer(), nullable=False),
         sa.Column("user_id", saty.String(), nullable=False),

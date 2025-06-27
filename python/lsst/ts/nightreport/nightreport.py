@@ -20,22 +20,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 __all__ = [
-    "Telescope",
     "NightReport",
     "NIGHTREPORT_FIELDS",
     "NIGHTREPORT_ORDER_BY_VALUES",
 ]
 
 import datetime
-import enum
 import uuid
 
 from pydantic import BaseModel, Field
-
-
-class Telescope(str, enum.Enum):
-    auxtel = "AuxTel"
-    maintel = "Simonyi"
 
 
 class NightReport(BaseModel):
@@ -48,12 +41,17 @@ class NightReport(BaseModel):
 
     id: uuid.UUID = Field(title="Night report ID: a UUID that is the primary key.")
     site_id: str = Field(title="Site at which the report was created.")
-
-    telescope: Telescope = Field(title="Telescope for which the report was created.")
     day_obs: int = Field(title="Observation day, as an integer in the form YYYYMMDD.")
 
     summary: str = Field(title="Night report summary.")
-    telescope_status: str = Field(title="Telescope status.")
+
+    # Added 2025-06-16
+    weather: None | str = Field(title="Weather conditions during the night.")
+    # Added 2025-06-16
+    maintel_summary: None | str = Field(title="Simonyi telescope summary.")
+    # Added 2025-06-16
+    auxtel_summary: None | str = Field(title="AuxTel telescope summary.")
+
     confluence_url: str = Field(
         title="URL of the Confluence page with the night report."
     )

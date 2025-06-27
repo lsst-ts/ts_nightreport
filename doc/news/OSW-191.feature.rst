@@ -1,0 +1,1 @@
+Unify telescopes report by refactoring nightreport fields.

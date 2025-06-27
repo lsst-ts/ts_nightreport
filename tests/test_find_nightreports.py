@@ -292,7 +292,7 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
         # in hopes more than one (though one is fine)
         # and fewer than all reports (not a good test)
         # will match.
-        for field in ("summary", "telescope_status"):
+        for field in ("summary", "weather", "maintel_summary", "auxtel_summary"):
             value = reports[2][field][1:2]
             if value == "\\":
                 # A backslash escapes the next character,
@@ -404,7 +404,9 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
             (
                 "day_obs",
                 "summary",
-                "telescope_status",
+                "weather",
+                "maintel_summary",
+                "auxtel_summary",
                 "confluence_url",
                 "user_id",
                 "user_agent",
