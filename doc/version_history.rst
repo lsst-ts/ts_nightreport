@@ -1,3 +1,12 @@
+v1.0.0 (2025-06-27)
+===================
+
+New Features
+------------
+
+- Unify telescopes report by refactoring nightreport fields. (`OSW-191 <https://rubinobs.atlassian.net//browse/OSW-191>`_)
+
+
 v0.1.4 (2025-06-17)
 ===================
 
