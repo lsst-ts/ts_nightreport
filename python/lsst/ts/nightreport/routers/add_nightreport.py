@@ -23,9 +23,7 @@ async def add_nightreport(
     weather: str = fastapi.Body(..., description="Weather conditions during the night"),
     maintel_summary: str = fastapi.Body(..., description="Simonyi telescope summary"),
     auxtel_summary: str = fastapi.Body(..., description="AuxTel telescope summary"),
-    confluence_url: str = fastapi.Body(
-        ..., description="URL of the Confluence page containing the report"
-    ),
+    confluence_url: str = fastapi.Body(..., description="URL of the Confluence page containing the report"),
     user_id: str = fastapi.Body(..., description="User ID"),
     user_agent: str = fastapi.Body(
         default=...,

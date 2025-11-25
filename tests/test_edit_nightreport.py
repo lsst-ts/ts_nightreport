@@ -117,9 +117,7 @@ async def test_edit_report(postgresql: psycopg.Connection) -> None:
         for del_key in full_edit_args:
             edit_args = full_edit_args.copy()
             del edit_args[del_key]
-            edit_response = await client.patch(
-                f"/nightreport/reports/{old_id}", json=edit_args
-            )
+            edit_response = await client.patch(f"/nightreport/reports/{old_id}", json=edit_args)
             assert_good_response(edit_response)
             get_old_response = await client.get(
                 f"/nightreport/reports/{old_id}",

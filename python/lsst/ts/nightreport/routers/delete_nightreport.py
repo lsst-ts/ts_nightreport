@@ -50,11 +50,7 @@ async def delete_nightreport(
         result = await connection.execute(
             nightreport_table.update()
             .where(nightreport_table.c.id == id)
-            .values(
-                date_invalidated=sa.func.coalesce(
-                    nightreport_table.c.date_invalidated, current_tai
-                )
-            )
+            .values(date_invalidated=sa.func.coalesce(nightreport_table.c.date_invalidated, current_tai))
         )
 
     if result.rowcount == 0:

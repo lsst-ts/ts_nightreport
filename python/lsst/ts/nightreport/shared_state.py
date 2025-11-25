@@ -131,9 +131,7 @@ class SharedState:
     def __init__(self):  # type: ignore
         self.site_id = get_env("SITE_ID")
         if len(self.site_id) > SITE_ID_LEN:
-            raise ValueError(
-                f"SITE_ID={self.site_id!r} too long; max length={SITE_ID_LEN}"
-            )
+            raise ValueError(f"SITE_ID={self.site_id!r} too long; max length={SITE_ID_LEN}")
         self.log = logging.getLogger("nightreport")
         self.metadata = sa.MetaData()
         self.nightreport_db = NightReportDatabase(
