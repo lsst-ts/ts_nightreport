@@ -51,18 +51,15 @@ async def find_nightreports(
     ),
     user_agents: None | list[str] = fastapi.Query(
         default=None,
-        description="User agents (which app created the report). "
-        "Repeat the parameter for each value.",
+        description="User agents (which app created the report). Repeat the parameter for each value.",
     ),
     min_day_obs: None | int = fastapi.Query(
         default=None,
-        description="Minimum day of observation, inclusive; "
-        "an integer of the form YYYYMMDD",
+        description="Minimum day of observation, inclusive; an integer of the form YYYYMMDD",
     ),
     max_day_obs: None | int = fastapi.Query(
         default=None,
-        description="Maximum day of observation, exclusive; "
-        "an integer of the form YYYYMMDD",
+        description="Maximum day of observation, exclusive; an integer of the form YYYYMMDD",
     ),
     min_date_added: None | datetime.datetime = fastapi.Query(
         default=None,

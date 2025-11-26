@@ -18,15 +18,9 @@ async def edit_nightreport(
     id: str,
     day_obs: None | int = fastapi.Body(default=None, description="Day of observation"),
     summary: None | str = fastapi.Body(default=None, description="NightReport summary"),
-    weather: None | str = fastapi.Body(
-        default=None, description="Weather conditions during the night"
-    ),
-    maintel_summary: None | str = fastapi.Body(
-        default=None, description="Simonyi telescope summary"
-    ),
-    auxtel_summary: None | str = fastapi.Body(
-        default=None, description="AuxTel telescope summary"
-    ),
+    weather: None | str = fastapi.Body(default=None, description="Weather conditions during the night"),
+    maintel_summary: None | str = fastapi.Body(default=None, description="Simonyi telescope summary"),
+    auxtel_summary: None | str = fastapi.Body(default=None, description="AuxTel telescope summary"),
     confluence_url: None | str = fastapi.Body(
         default=None,
         description="URL of the Confluence page containing the report",
@@ -102,9 +96,7 @@ async def edit_nightreport(
     async with state.nightreport_db.engine.begin() as connection:
         # Find the parent report.
         get_parent_report_result = await connection.execute(
-            nightreport_table.select()
-            .where(nightreport_table.c.id == parent_id)
-            .with_for_update()
+            nightreport_table.select().where(nightreport_table.c.id == parent_id).with_for_update()
         )
         parent_report_row = get_parent_report_result.fetchone()
         if parent_report_row is None:
@@ -116,18 +108,14 @@ async def edit_nightreport(
         # Add new report.
         nightreport_update_params = set(request_data.keys())
         new_nightreport_data = parent_report_row._asdict().copy()
-        new_nightreport_data.update(
-            {k: v for k, v in request_data.items() if k in nightreport_update_params}
-        )
+        new_nightreport_data.update({k: v for k, v in request_data.items() if k in nightreport_update_params})
         for field in ("id", "is_valid", "date_invalidated"):
             del new_nightreport_data[field]
         current_tai = astropy.time.Time.now().tai.datetime
         new_nightreport_data["site_id"] = state.site_id
         new_nightreport_data["parent_id"] = parent_id
         add_row_result = await connection.execute(
-            nightreport_table.insert()
-            .values(**new_nightreport_data)
-            .returning(sa.literal_column("*"))
+            nightreport_table.insert().values(**new_nightreport_data).returning(sa.literal_column("*"))
         )
         row_report = add_row_result.fetchone()
 

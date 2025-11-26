@@ -52,36 +52,24 @@ class NightReport(BaseModel):
     # Added 2025-06-16
     auxtel_summary: None | str = Field(title="AuxTel telescope summary.")
 
-    confluence_url: str = Field(
-        title="URL of the Confluence page with the night report."
-    )
+    confluence_url: str = Field(title="URL of the Confluence page with the night report.")
 
     user_id: str = Field(title="User ID.")
-    user_agent: str = Field(
-        title="User agent: the application that created the report."
-    )
+    user_agent: str = Field(title="User agent: the application that created the report.")
 
-    date_added: datetime.datetime = Field(
-        title="TAI date at which the night report was added."
-    )
+    date_added: datetime.datetime = Field(title="TAI date at which the night report was added.")
     date_sent: None | datetime.datetime = Field(
         title="TAI date at which the night report was confirmed and sent."
     )
 
-    is_valid: bool = Field(
-        description="Is this report still valid (false if deleted or edited)."
-    )
+    is_valid: bool = Field(description="Is this report still valid (false if deleted or edited).")
     date_invalidated: None | datetime.datetime = Field(
         description="TAI date at which is_valid was last set true."
     )
-    parent_id: None | uuid.UUID = Field(
-        description="Report ID of night report this is an edited version of."
-    )
+    parent_id: None | uuid.UUID = Field(description="Report ID of night report this is an edited version of.")
 
     # Added 2024-03-06
-    observers_crew: list[str] = Field(
-        title="List of observers and crew members present during the night."
-    )
+    observers_crew: list[str] = Field(title="List of observers and crew members present during the night.")
 
     class Config:
         orm_mode = True

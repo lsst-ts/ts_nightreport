@@ -115,9 +115,7 @@ async def create_test_client(
             await main.startup_event()
             try:
                 transport = httpx.ASGITransport(app=main.app)
-                async with httpx.AsyncClient(
-                    transport=transport, base_url="http://test"
-                ) as client:
+                async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
                     assert shared_state.has_shared_state()
                     yield client, reports
             finally:
@@ -166,8 +164,7 @@ def modify_environ(**kwargs: typing.Any) -> collections.abc.Iterator:
     ]
     if bad_value_strs:
         raise RuntimeError(
-            "The following arguments are not of type str or None: "
-            + ", ".join(bad_value_strs)
+            "The following arguments are not of type str or None: " + ", ".join(bad_value_strs)
         )
 
     new_environ = os.environ.copy()
@@ -193,9 +190,7 @@ def assert_good_response(response: httpx.Response) -> typing.Any:
     data : `typing.Any`
         The data from the response.
     """
-    assert (
-        response.status_code == http.HTTPStatus.OK
-    ), f"Bad response {response.status_code}: {response.text}"
+    assert response.status_code == http.HTTPStatus.OK, f"Bad response {response.status_code}: {response.text}"
     data = response.json()
     assert "errors" not in data, f"errors={data['errors']}"
     return data
@@ -220,9 +215,7 @@ def assert_reports_equal(report1: ReportDictT, report2: ReportDictT) -> None:
     assert report1.keys() == report2.keys()
     for field in report1:
         values = [cast_special(value) for value in (report1[field], report2[field])]
-        assert (
-            values[0] == values[1]
-        ), f"field {field} unequal: {values[0]!r} != {values[1]!r}"
+        assert values[0] == values[1], f"field {field} unequal: {values[0]!r} != {values[1]!r}"
 
 
 def cast_special(value: typing.Any) -> typing.Any:
@@ -559,10 +552,7 @@ async def create_test_database(
         and all fields are set.
     """
     if num_edited > 0 and num_edited >= num_reports:
-        raise ValueError(
-            f"num_edited={num_edited} must be zero or "
-            f"less than num_reports={num_reports}"
-        )
+        raise ValueError(f"num_edited={num_edited} must be zero or less than num_reports={num_reports}")
     sa_url = sqlalchemy.engine.make_url(postgres_url)
     sa_url = sa_url.set(drivername="postgresql+asyncpg")
     engine = create_async_engine(sa_url, future=True)
@@ -589,9 +579,7 @@ async def create_test_database(
             )
             data_report = result_report.fetchone()
             if data_report is None:
-                raise RuntimeError(
-                    "Failed to insert report into the database: " f"{pruned_report!r}"
-                )
+                raise RuntimeError(f"Failed to insert report into the database: {pruned_report!r}")
             assert report["id"] == data_report.id
             assert report["is_valid"] == data_report.is_valid
 
