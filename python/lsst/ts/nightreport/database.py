@@ -49,7 +49,7 @@ class NightReportDatabase:
         self.logger = structlog.get_logger("NightReportDatabase")
         sa_url = sqlalchemy.engine.make_url(url)
         sa_url = sa_url.set(drivername="postgresql+asyncpg")
-        self.engine = create_async_engine(sa_url, future=True)
+        self.engine = create_async_engine(sa_url, future=True, pool_pre_ping=True)
         self.nightreport_table = nightreport_table
         self.start_task = asyncio.create_task(self.start())
 

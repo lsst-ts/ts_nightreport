@@ -1,0 +1,1 @@
+Added pool_pre_ping to sqlalchemy create_async_engine.
