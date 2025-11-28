@@ -40,7 +40,7 @@ from lsst.ts.nightreport.testutils import (
 random.seed(11)
 
 
-class doc_str:
+class DocStringDecorator:
     """Decorator to add a doc string to a function.
 
     Unlike the standard technique, this works with f strings
@@ -111,9 +111,7 @@ def assert_reports_ordered(reports: list[ReportDictT], order_by: list[str]) -> N
         report1 = report2
 
 
-def assert_two_reports_ordered(
-    report1: ReportDictT, report2: ReportDictT, order_by: list[str]
-) -> None:
+def assert_two_reports_ordered(report1: ReportDictT, report2: ReportDictT, order_by: list[str]) -> None:
     """Assert that two reports are ordered as specified.
 
     Parameters
@@ -141,8 +139,7 @@ def assert_two_reports_ordered(
             return
         elif cmp_result != 0:
             raise AssertionError(
-                f"reports mis-ordered in key {key}: "
-                f"report1[{field!r}]={val1!r}, report2[{field!r}]={val2!r}"
+                f"reports mis-ordered in key {key}: report1[{field!r}]={val1!r}, report2[{field!r}]={val2!r}"
             )
 
 
@@ -200,9 +197,7 @@ def get_missing_report(
 async def test_find_reports(postgresql: psycopg.Connection) -> None:
     num_reports = 12
     num_edited = 6  # Must be at least 4 in order to test ranges.
-    async with create_test_client(
-        postgresql, num_reports=num_reports, num_edited=num_edited
-    ) as (
+    async with create_test_client(postgresql, num_reports=num_reports, num_edited=num_edited) as (
         client,
         reports,
     ):
@@ -211,9 +206,7 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
         # * dict of find arg name: value
         # * predicate: function that takes a report dict
         #   and returns True if the report matches the query
-        find_args_predicates: list[
-            tuple[dict[str, typing.Any], collections.abc.Callable]
-        ] = list()
+        find_args_predicates: list[tuple[dict[str, typing.Any], collections.abc.Callable]] = list()
 
         # Range arguments: min_<field>, max_<field>.
         for field in (
@@ -221,9 +214,7 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
             "date_added",
             # "date_sent",
         ):
-            values = sorted(
-                report[field] for report in reports if report[field] is not None
-            )
+            values = sorted(report[field] for report in reports if report[field] is not None)
             assert len(values) >= 4, f"not enough values for {field}"
             min_name = f"min_{field}"
             max_name = f"max_{field}"
@@ -231,7 +222,7 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
             max_value = values[-1]
             assert max_value > min_value
 
-            @doc_str(f"report[{field!r}] not None and >= {min_value}.")
+            @DocStringDecorator(f"report[{field!r}] not None and >= {min_value}.")
             def test_min(
                 report: ReportDictT,
                 field: str = field,
@@ -241,7 +232,7 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
                 value = cast_special(report[field])
                 return value is not None and value >= min_value
 
-            @doc_str(f"report[{field!r}] not None and < {max_value}.")
+            @DocStringDecorator(f"report[{field!r}] not None and < {max_value}.")
             def test_max(
                 report: ReportDictT,
                 field: str = field,
@@ -277,7 +268,7 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
             values = [report[field] for report in reports_to_find]
             arg_name = field + "s"
 
-            @doc_str(f"report[{field!r}] in {values}")
+            @DocStringDecorator(f"report[{field!r}] in {values}")
             def test_collection(
                 report: ReportDictT,
                 field: str = field,
@@ -299,7 +290,7 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
                 # so include that character, as well.
                 value = reports[2][field][1:3]
 
-            @doc_str(f"{value!r} in report[{field!r}]")
+            @DocStringDecorator(f"{value!r} in report[{field!r}]")
             def test_contains(
                 report: ReportDictT,
                 field: str = field,
@@ -313,11 +304,11 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
         for field in ("parent_id",):
             arg_name = f"has_{field}"
 
-            @doc_str(f"report[{field!r}] is not None")
+            @DocStringDecorator(f"report[{field!r}] is not None")
             def test_has(report: ReportDictT, field: str = field) -> bool:
                 return report[field] is not None
 
-            @doc_str(f"report[{field!r}] is None")
+            @DocStringDecorator(f"report[{field!r}] is None")
             def test_has_not(report: ReportDictT, field: str = field) -> bool:
                 return report[field] is None
 
@@ -329,15 +320,15 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
         # Tre-state boolean fields.
         for field in ("is_valid",):
 
-            @doc_str(f"report[{field!r}] is True")
+            @DocStringDecorator(f"report[{field!r}] is True")
             def test_true(report: ReportDictT, field: str = field) -> bool:
                 return report[field] is True
 
-            @doc_str(f"report[{field!r}] is False")
+            @DocStringDecorator(f"report[{field!r}] is False")
             def test_false(report: ReportDictT, field: str = field) -> bool:
                 return report[field] is False
 
-            @doc_str(f"report[{field!r}] is either")
+            @DocStringDecorator(f"report[{field!r}] is either")
             def test_either(report: ReportDictT, field: str = field) -> bool:
                 return True
 
@@ -352,7 +343,7 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
             response = await client.get("/nightreport/reports", params=find_args)
             if "is_valid" not in find_args:
                 # Handle the fact that is_valid defaults to True
-                @doc_str(f'{predicate.__doc__} and report["is_valid"] is True')
+                @DocStringDecorator(f'{predicate.__doc__} and report["is_valid"] is True')
                 def predicate_and_is_valid(
                     report: ReportDictT,
                     predicate: collections.abc.Callable = predicate,
@@ -374,7 +365,7 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
                 # Overlapping arguments makes the predicates invalid.
                 continue
 
-            @doc_str(f"{predicate1.__doc__} and {predicate2.__doc__}")
+            @DocStringDecorator(f"{predicate1.__doc__} and {predicate2.__doc__}")
             def and_predicates(
                 report: ReportDictT,
                 predicate1: collections.abc.Callable,
@@ -431,9 +422,7 @@ async def test_find_reports(postgresql: psycopg.Connection) -> None:
                 new_paged_reports = assert_good_response(response)
                 paged_reports += new_paged_reports
                 assert len(new_paged_reports) == min(limit, num_remaining)
-                find_args["offset"] = find_args.get("offset", 0) + len(
-                    new_paged_reports
-                )
+                find_args["offset"] = find_args.get("offset", 0) + len(new_paged_reports)
 
             # Run one more find that should return no reports
             response = await client.get("/nightreport/reports", params=find_args)

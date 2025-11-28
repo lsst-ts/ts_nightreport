@@ -45,9 +45,7 @@ async def test_shared_state(postgresql: psycopg.Connection) -> None:
     try:
         with postgresql as conn:
             postgresql_url = (
-                f"postgresql://"
-                f"{conn.info.user}@{conn.info.host}"
-                f":{conn.info.port}/{conn.info.dbname}"
+                f"postgresql://{conn.info.user}@{conn.info.host}:{conn.info.port}/{conn.info.dbname}"
             )
             await create_test_database(postgresql_url, num_reports=0)
             assert not has_shared_state()
