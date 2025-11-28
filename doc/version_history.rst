@@ -1,3 +1,19 @@
+v1.0.1 (2025-11-28)
+===================
+
+Performance Enhancement
+-----------------------
+
+- Added pool_pre_ping to sqlalchemy create_async_engine. (`OSW-851 <https://rubinobs.atlassian.net//browse/OSW-851>`_)
+- Updated ts-pre-commit-config hooks to use ruff instead of black and flake8. (`OSW-1494 <https://rubinobs.atlassian.net//browse/OSW-1494>`_)
+
+
+Other Changes and Additions
+---------------------------
+
+- Change the build string in the conda recipe. (`OSW-1494 <https://rubinobs.atlassian.net//browse/OSW-1494>`_)
+
+
 v1.0.0 (2025-06-27)
 ===================
 

@@ -1,1 +1,0 @@
-Updated ts-pre-commit-config hooks to use ruff instead of black and flake8.
